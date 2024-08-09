@@ -27,10 +27,8 @@ public class ReportController {
     };
 
     private final EntityManager entityManager;
-    // Declare SearchService same as EntityManager
     private final SearchService searchService;
 
-    // Add the SearchService to the constructor
     @Autowired
     public ReportController(EntityManager entityManager, SearchService searchService) {
         this.entityManager = entityManager;
@@ -39,16 +37,13 @@ public class ReportController {
 
     @GetMapping("/api/products/report")
     public SearchReportResponse runReport() {
-        // We could use the search service and do an empty string query to get the count but this is much more efficient
         Number count = (Number) this.entityManager.createQuery("SELECT count(item) FROM ProductItem item").getSingleResult();
 
-        // For each important term, query on it and add size of results to our Map
         Map<String, Integer> hits = new HashMap<>();
         for (String term : importantTerms) {
             hits.put(term, searchService.search(term).size());
         }
 
-        // Transform to API response and return
         SearchReportResponse response = new SearchReportResponse();
         response.setProductCount(count.intValue());
         response.setSearchTermHits(hits);
